@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContactsService } from '../contacts/contacts.service';
 import { phoneTypeValues } from '../contacts/contact.model';
 import { addressTypeValues } from '../contacts/contact.model';
+import { restrictedWords } from '../validators/restricted-words-validators';
+
 
 @Component({
   templateUrl: './edit-contact.component.html',
@@ -16,22 +18,22 @@ addressTypes = addressTypeValues;
 contactForm = this.fb.nonNullable.group({
     id: '',
     personal: false,
-    firstName: '',
+    firstName: ['', Validators.required],
     lastName: '',
     dateOfBirth: <Date | null>null,
     favoritesRanking: <number | null>null,
-    notes:'',
 phone: this.fb.nonNullable.group({
     phoneNumber: '',
     phoneType: '',  
 }),
 address: this.fb.nonNullable.group({
-    streetAddress: '',
-    city: '',
-    state: '',
-    postalCode: '',
-    addressType: '',
-})
+    streetAddress: ['', [Validators.required]],
+    city: ['', [Validators.required]],
+    state: ['', [Validators.required]],
+    postalCode: ['', [Validators.required]],
+    addressType: ['', [Validators.required]],
+}),
+notes: ['', restrictedWords(['foo', 'bar'])],
 });
 
 constructor(
@@ -50,6 +52,14 @@ constructor(
 
       this.contactForm.setValue(contact);
     });
+  }
+  
+  get firstName() {
+    return this.contactForm.controls.firstName;
+  }
+
+  get notes() {
+    return this.contactForm.controls.notes;
   }
 
   saveContact() {
